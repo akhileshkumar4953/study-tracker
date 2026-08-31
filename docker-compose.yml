@@ -1,0 +1,77 @@
+version: '3.8'
+
+services:
+
+  mysql:
+
+    image: mysql:8.0
+
+    container_name: study-tracker-mysql
+
+    restart: always
+
+    environment:
+
+      MYSQL_ROOT_PASSWORD: root
+
+      MYSQL_DATABASE: study-tracker
+
+    ports:
+
+      - "3309:3306"
+
+    volumes:
+
+      - mysql_data:/var/lib/mysql
+
+    healthcheck:
+
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+
+      interval: 10s
+
+      retries: 10
+
+      timeout: 5s
+
+  backend:
+
+    build: ./study-tracker
+
+    container_name: study-tracker-backend
+
+    depends_on:
+
+      mysql:
+
+        condition: service_healthy
+
+    environment:
+
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/study-tracker
+
+      SPRING_DATASOURCE_USERNAME: root
+
+      SPRING_DATASOURCE_PASSWORD: root
+
+    ports:
+
+      - "8080:8080"
+
+  frontend:
+
+    build: ./study-tracker-ui
+
+    container_name: study-tracker-frontend
+
+    depends_on:
+
+      - backend
+
+    ports:
+
+      - "4200:80"
+
+volumes:
+
+  mysql_data:
