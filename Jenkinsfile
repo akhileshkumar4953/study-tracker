@@ -9,6 +9,7 @@ pipeline {
     }
 
     options {
+        skipDefaultCheckout(true)
         disableConcurrentBuilds(abortPrevious: true)
         timeout(time: 30, unit: 'MINUTES')
     }
@@ -24,8 +25,20 @@ pipeline {
         stage('Checkout Frontend') {
             steps {
                 bat '''
+                    echo ===== CHECKING FRONTEND REPOSITORY =====
+
                     if exist study-tracker-ui rmdir /s /q study-tracker-ui
+
+                    set GIT_TERMINAL_PROMPT=0
+
                     git clone --branch main https://github.com/akhileshkumar4953/study-tracker-ui.git study-tracker-ui
+
+                    if not exist study-tracker-ui\\package.json (
+                        echo ERROR: package.json not found!
+                        exit /b 1
+                    )
+
+                    echo ===== FRONTEND CLONE SUCCESSFUL =====
                 '''
             }
         }
@@ -35,10 +48,12 @@ pipeline {
                 bat '''
                     echo ===== BACKEND =====
                     dir study-tracker
+
                     echo ===== FRONTEND =====
                     dir study-tracker-ui
-                    echo ===== FRONTEND PACKAGE =====
-                    if not exist study-tracker-ui\\package.json exit /b 1
+
+                    echo ===== PACKAGE.JSON =====
+                    dir study-tracker-ui\\package.json
                 '''
             }
         }
