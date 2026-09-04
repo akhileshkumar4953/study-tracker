@@ -17,10 +17,7 @@ stages {
 
     stage('Checkout Frontend') {
         steps {
-            bat '''
-                if exist study-tracker-ui rmdir /s /q study-tracker-ui
-                git clone --branch main https://github.com/akhileshkumar4953/study-tracker-ui.git study-tracker-ui
-            '''
+            checkout scm
         }
     }
 
